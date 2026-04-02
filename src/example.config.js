@@ -1,8 +1,20 @@
-const { ButtonStyle } = require("discord.js");
+const { ButtonStyle, GatewayIntentBits } = require("discord.js");
 
 module.exports = {
     dev_guild: "",
     devs: [""],
+
+    // Keep intents minimal by default. Add privileged intents only if needed.
+    clientIntents: [
+        GatewayIntentBits.Guilds,
+        GatewayIntentBits.GuildMessages,
+        GatewayIntentBits.MessageContent,
+    ],
+
+    // Command registration mode: "auto" | "guild" | "global"
+    commandRegistration: {
+        scope: "auto",
+    },
 
     prefixes: ["!"],
 

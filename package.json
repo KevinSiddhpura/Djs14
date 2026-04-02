@@ -1,36 +1,37 @@
 {
-  "name": "djs14-bot",
-  "version": "2.0.0",
-  "description": "Discord.js V14 - Bot Template",
+  "name": "djs14",
+  "version": "3.0.0",
+  "description": "Djs14 - Discord.js v14 bot template",
   "main": "src/index.js",
   "type": "commonjs",
   "scripts": {
-    "dev": "nodemon node src/index.js --dev",
+    "dev": "nodemon src/index.js -- --dev",
     "reset-cmds": "node src/index.js --reset-cmds",
     "start": "node src/index.js"
   },
   "keywords": [
+    "Djs14",
     "Discord.js V14",
     "Discord.js Template",
     "Discord.js",
     "Discord Bot",
     "Discord App"
   ],
-  "author": "KevinSidd",
+  "author": "KevinSiddhpura",
   "discord": "@kevinsidd",
   "repository": {
-    "url": "https://github.com/KevinSidd/Djs14-Bot",
-    "issues": "https://github.com/KevinSidd/Djs14-Bot/issues",
-    "discussion": "https://github.com/KevinSidd/Djs14-Bot/discussions"
+    "url": "https://github.com/KevinSidd/discord.js-14",
+    "issues": "https://github.com/KevinSidd/discord.js-14/issues",
+    "discussion": "https://github.com/KevinSidd/discord.js-14/discussions"
   },
   "license": "GPLv3",
   "dependencies": {
-    "axios": "^1.7.7",
-    "better-sqlite3": "^11.4.0",
-    "discord.js": "^14.16.3",
-    "dotenv": "^16.4.5",
+    "axios": "^1.14.0",
+    "better-sqlite3": "^12.8.0",
+    "discord.js": "^14.26.0",
+    "dotenv": "^17.4.0",
     "kleur": "^4.1.5",
     "moment": "^2.30.1",
-    "nodemon": "^3.1.7"
+    "nodemon": "^3.1.14"
   }
 }

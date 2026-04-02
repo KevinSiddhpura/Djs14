@@ -1,6 +1,6 @@
 const { Client } = require("discord.js");
-const logger = require("../../handlers/helpers/logger");
-const Utils = require("../../handlers/utils");
+const logger = require("../../lib/logger");
+const Utils = require("../../lib/utils");
 
 module.exports = {
     once: true,
@@ -11,6 +11,9 @@ module.exports = {
 
     run: async (client) => {
         logger.info(`Logged in as ${client.user.username}!`);
-        Utils.registerCommands(client);
+        const didRegister = await Utils.registerCommands(client);
+        if (!didRegister) {
+            logger.error("Command registration failed. Review logs above for details.");
+        }
     }
 }

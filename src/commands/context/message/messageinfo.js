@@ -1,33 +1,43 @@
 const { ApplicationCommandType, Colors } = require("discord.js");
-const Command = require("../../../handlers/helpers/command");
-const { createEmbeds } = require("../../../handlers/helpers/embed");
+const { CreateMessage } = require("../../../lib/builders");
+const Command = require("../../../lib/command");
 
 new Command({
-    name: "Message Info",
+    name: "Message Snapshot",
     type: ApplicationCommandType.Message,
     category: "Context-Message",
     runContextMessage: async (client, interaction) => {
-        const message = interaction.targetMessage;
+        await interaction.deferReply();
 
-        return interaction.reply({
-            embeds: createEmbeds([{
-                Title: "Message Info",
-                Color: Colors.Aqua,
-                Description: [
-                    `- **Sent By: ** <@${message.author.id}> (${message.author.id})`,
-                    `- **Sent In: ** <#${interaction.channel.id}> (${interaction.channel.id})`,
-                    `- **Embeds: ** ${message.embeds.length || "None"}`,
-                    `- **Attachments: ** ${message.attachments.size || "None"}`,
-                    `- **Reactions: ** ${message.reactions.cache.size || "None"}`,
-                    `- **Message Content:**`,
-                    "```",
-                    `${message.content || "None"}`,
-                    "```",
-                ].join("\n"),
-                FooterText: `ID: ${message.id}`,
-                FooterIcon: message.author.displayAvatarURL({ dynamic: true }),
-                Timestamp: true
-            }])
-        })
+        const message = interaction.targetMessage;
+        const preview = message.content?.length
+            ? message.content.slice(0, 1000)
+            : "No text content";
+
+        return new CreateMessage({
+            embeds: [
+                {
+                    title: "Message Snapshot",
+                    color: Colors.Aqua,
+                    description: [
+                        `- **Sent By:** <@${message.author.id}> (${message.author.id})`,
+                        `- **Sent In:** <#${interaction.channel.id}> (${interaction.channel.id})`,
+                        `- **Embeds:** ${message.embeds.length || "None"}`,
+                        `- **Attachments:** ${message.attachments.size || "None"}`,
+                        `- **Reactions:** ${message.reactions.cache.size || "None"}`,
+                        "",
+                        "**Content Preview**",
+                        "```",
+                        preview,
+                        "```",
+                    ].join("\n"),
+                    footer: {
+                        text: `Message ID: ${message.id}`,
+                        iconURL: message.author.displayAvatarURL(),
+                    },
+                    timestamp: new Date(),
+                },
+            ],
+        }).send(interaction);
     }
 })

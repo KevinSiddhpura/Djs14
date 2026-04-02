@@ -1,49 +1,73 @@
-const Command = require("../../../handlers/helpers/command");
-const { getCommands } = require("../../../handlers/helpers/command");
-const Pagination = require("../../../handlers/paginate");
-const { splitArray } = require("../../../handlers/utils");
+const { ApplicationCommandOptionType, ApplicationCommandType } = require("discord.js");
+const Command = require("../../../lib/command");
+const { getCommands } = require("../../../lib/command");
+const Pagination = require("../../../handlers/pagination");
+const { splitArray } = require("../../../lib/utils");
+const { CreateMessage } = require("../../../lib/builders");
+
+const commandLabel = (command) => {
+    if (command.type === ApplicationCommandType.ChatInput) return `/${command.name}`;
+    return command.name;
+};
 
 new Command({
     name: "help",
     category: "General",
-    description: "List all commands or info about a specific command.",
+    description: "Browse all available commands.",
+    options: [
+        {
+            type: ApplicationCommandOptionType.String,
+            name: "category",
+            description: "Filter commands by category",
+            required: false,
+            autocomplete: true,
+        },
+    ],
+    runAutocomplete: async (client, interaction) => {
+        const focused = interaction.options.getFocused(true).value.toLowerCase();
+        const categories = [...new Set(getCommands().map((cmd) => cmd.category).filter(Boolean))]
+            .sort((a, b) => a.localeCompare(b));
+
+        const filtered = categories
+            .filter((category) => category.toLowerCase().includes(focused))
+            .slice(0, 25)
+            .map((category) => ({ name: category, value: category }));
+
+        await interaction.respond(filtered);
+    },
     runSlash: async (client, interaction) => {
-        await interaction.deferReply({ ephemeral: false });
+        const selectedCategory = interaction.options.getString("category");
+        const allCommands = getCommands();
 
-        const initialMessage = await interaction.editReply({
-            content: "Loading pagination..."
-        });
+        const visible = allCommands
+            .filter((command) => !selectedCategory || command.category === selectedCategory)
+            .sort((a, b) => a.name.localeCompare(b.name));
 
-        const _commands = getCommands().map(c => {
-            return {
-                name: c.name,
-                category: c.category,
-                description: c.description,
-                type: c.type,
-            }
-        });
-
-        const splits = splitArray(_commands, 3);
-        const pages = [];
-
-        for (const split of splits) {
-            const group = split.map((command) => {
-                let { name, description, category, type } = command;
-                if (description == null) description = "Not provided";
-
-                return `> **\`${type == 1 ? `/${name}` : `${name}`}\`** • \`[${category}]\` \n- _${description}_`
-            }).join("\n");
-
-            pages.push({
-                content: `**Page** • [${pages.length + 1}/${splits.length}]`,
-                embeds: [{
-                    Title: "Help Menu",
-                    Description: group,
-                    Timestamp: true
-                }],
-            });
+        if (!visible.length) {
+            await new CreateMessage({ ephemeral: true })
+                .content("No commands found for that category.")
+                .send(interaction);
+            return;
         }
 
+        const initialMessage = await new CreateMessage({
+            content: "Loading help pages...",
+            fetchReply: true,
+        }).send(interaction);
+
+        const chunks = splitArray(visible, 6);
+        const pages = chunks.map((chunk, index) => ({
+            content: `Page ${index + 1}/${chunks.length}`,
+            embeds: [
+                {
+                    title: selectedCategory ? `Help: ${selectedCategory}` : "Help: All Commands",
+                    description: chunk
+                        .map((command) => `- **${commandLabel(command)}** [${command.category}]\n  ${command.description || "No description"}`)
+                        .join("\n"),
+                },
+            ],
+        }));
+
         new Pagination(initialMessage, pages, interaction.user.id).paginate();
-    }
+    },
 });

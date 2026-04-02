@@ -1,8 +1,10 @@
-const { Client, PermissionFlagsBits, ChatInputCommandInteraction } = require("discord.js");
-const { getCommands } = require("../../handlers/helpers/command");
+const { Client, PermissionFlagsBits, ChatInputCommandInteraction, MessageFlags } = require("discord.js");
+const { getCommands } = require("../../lib/command");
 const { devs } = require("../../config");
-const logger = require("../../handlers/helpers/logger");
-const Utils = require("../../handlers/utils");
+const logger = require("../../lib/logger");
+const Utils = require("../../lib/utils");
+const componentHandler = require("../../handlers/interactions/componentHandler");
+const modalHandler = require("../../handlers/interactions/modalHandler");
 
 /**
  * Perform checks on a command to ensure it can be executed.
@@ -13,19 +15,19 @@ const Utils = require("../../handlers/utils");
 async function performChecks(command, interaction) {
     // Check if command is enabled
     if (!command.enabled) {
-        await interaction.reply({ content: "This command is disabled.", ephemeral: true });
+        await interaction.reply({ content: "This command is disabled.", flags: MessageFlags.Ephemeral });
         return false;
     }
 
     // Check if command is developer-only and whether the user is a dev
     if (command.devOnly && !devs.includes(interaction.user.id)) {
-        await interaction.reply({ content: "This command is only for developers.", ephemeral: true });
+        await interaction.reply({ content: "This command is only for developers.", flags: MessageFlags.Ephemeral });
         return false;
     }
 
     // Check if command is admin-only and whether the user has admin permissions or is a dev
     if (command.adminOnly && !interaction.member.permissions.has(PermissionFlagsBits.Administrator) && !devs.includes(interaction.user.id)) {
-        await interaction.reply({ content: "This command is only for administrators.", ephemeral: true });
+        await interaction.reply({ content: "This command is only for administrators.", flags: MessageFlags.Ephemeral });
         return false;
     }
 
@@ -39,7 +41,7 @@ async function performChecks(command, interaction) {
         if (!isAllowedChannel) {
             await interaction.reply({
                 content: `This command can only be used in the following channels: ${command.allowedChannels.join(", ")}`,
-                ephemeral: true
+                flags: MessageFlags.Ephemeral
             });
             return false;
         }
@@ -55,7 +57,7 @@ async function performChecks(command, interaction) {
         if (!hasAllowedRole) {
             await interaction.reply({
                 content: `This command can only be used by the following roles: ${command.allowedRoles.join(", ")}`,
-                ephemeral: true
+                flags: MessageFlags.Ephemeral
             });
             return false;
         }
@@ -71,14 +73,24 @@ module.exports = {
      * @param {ChatInputCommandInteraction} interaction - The interaction object.
      */
     run: async (client, interaction) => {
-        if (interaction.isButton() || interaction.isAnySelectMenu() || interaction.isModalSubmit()) return;
+        if (interaction.isButton() || interaction.isAnySelectMenu()) {
+            await componentHandler.handle(client, interaction);
+            return;
+        }
+
+        if (interaction.isModalSubmit()) {
+            await modalHandler.handle(client, interaction);
+            return;
+        }
+
+        if (!interaction.isChatInputCommand() && !interaction.isContextMenuCommand() && !interaction.isAutocomplete()) return;
 
         const commandCollection = getCommands();
         const command = commandCollection.find(c => c.name === interaction.commandName);
 
         // Ensure command exists and has appropriate handler
         if (!command) {
-            return interaction.reply({ content: "The command does not exist or was not updated.", ephemeral: true });
+            return interaction.reply({ content: "The command does not exist or was not updated.", flags: MessageFlags.Ephemeral });
         }
 
         // Determine the interaction type and run the associated command
@@ -87,25 +99,32 @@ module.exports = {
         const isMessageContextCommand = interaction.isMessageContextMenuCommand() && command.runContextMessage;
         const isAutoCompleteCommand = interaction.isAutocomplete() && command.runAutocomplete;
         
+        if (isAutoCompleteCommand) {
+            try {
+                await command.runAutocomplete(client, interaction);
+            } catch (error) {
+                logger.error(error);
+            }
+            return;
+        }
+
         if (isSlashCommand || isUserContextCommand || isMessageContextCommand) {
             try {
                 const checksPassed = await performChecks(command, interaction);
                 if (!checksPassed) return;
 
                 if (isSlashCommand) {
-                    command.runSlash(client, interaction);
+                    await command.runSlash(client, interaction);
                 } else if (isUserContextCommand) {
-                    command.runContextUser(client, interaction);
+                    await command.runContextUser(client, interaction);
                 } else if (isMessageContextCommand) {
-                    command.runContextMessage(client, interaction);
-                } else if(isAutoCompleteCommand) {
-                    command.runAutocomplete(client, interaction);
+                    await command.runContextMessage(client, interaction);
                 }
             } catch (error) {
                 logger.error(error);
             }
         } else {
-            interaction.reply({ content: "The command does not exist or was not updated.", ephemeral: true });
+            interaction.reply({ content: "The command does not exist or was not updated.", flags: MessageFlags.Ephemeral });
         }
     }
 }

@@ -1,8 +1,8 @@
 const { Client, Message, PermissionFlagsBits } = require("discord.js");
-const { getCommands } = require("../../handlers/helpers/command");
+const { getCommands } = require("../../lib/command");
 const { prefixes, devs } = require("../../config");
-const logger = require("../../handlers/helpers/logger");
-const Utils = require("../../handlers/utils");
+const logger = require("../../lib/logger");
+const Utils = require("../../lib/utils");
 
 /**
  * Perform checks on a command to ensure it can be executed by the user.
@@ -15,19 +15,19 @@ async function performChecks(command, message) {
 
     // Check if the command is enabled
     if (!command.enabled) {
-        await message.reply({ content: "This command is disabled.", ephemeral: true });
+        await message.reply({ content: "This command is disabled." });
         return false;
     }
 
     // Check if the command is restricted to developers
     if (command.devOnly && !devs.includes(author.id)) {
-        await message.reply({ content: "This command is only for developers.", ephemeral: true });
+        await message.reply({ content: "This command is only for developers." });
         return false;
     }
 
     // Check if the command is restricted to admins
     if (command.adminOnly && !member.permissions.has(PermissionFlagsBits.Administrator) && !devs.includes(author.id)) {
-        await message.reply({ content: "This command is only for administrators.", ephemeral: true });
+        await message.reply({ content: "This command is only for administrators." });
         return false;
     }
 
@@ -39,7 +39,7 @@ async function performChecks(command, message) {
         });
 
         if (!isAllowedChannel) {
-            await message.reply({ content: "You are not allowed to use this command in this channel.", ephemeral: true });
+            await message.reply({ content: "You are not allowed to use this command in this channel." });
             return false;
         }
     }
@@ -52,7 +52,7 @@ async function performChecks(command, message) {
         });
 
         if (!hasAllowedRole) {
-            await message.reply({ content: "You are not allowed to use this command.", ephemeral: true });
+            await message.reply({ content: "You are not allowed to use this command." });
             return false;
         }
     }

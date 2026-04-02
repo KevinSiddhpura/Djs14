@@ -1,7 +1,7 @@
-# Discord.js 14 - Bot
+# Djs14
 
 ## Prerequisites
-- Node.js v16.9+
+- Node.js v20+
 - Discord.js v14
 
 ## Features
@@ -9,6 +9,83 @@
 - Modular design for flexible customization.
 - Planned updates for additional commands and utilities.
 - Better database management.
+- Slash, context, and legacy prefix command support.
+- Configurable command registration scope (guild/global/auto).
+- Minimal-intent defaults for easier onboarding and safer permissions.
+- Fluent message and embed builders with JS IntelliSense support.
+- Ready-to-use command suite for general usage and UI interactions.
+- Feedback modal with SQLite persistence.
+
+## Included Commands
+- Slash: `/help`, `/ping`, `/server`, `/ui`, `/feedback`, `/eval` (dev only)
+- Context (user): `User Snapshot`
+- Context (message): `Message Snapshot`
+
+## Builder API
+Use the built-in builders from `src/lib/builders`:
+
+```js
+const { CreateMessage, CreateEmbed, CreateComponents, CreateModal } = require("../src/lib/builders");
+
+const embed = new CreateEmbed()
+	.title("Hello")
+	.description("Fluent message API")
+	.timestamp()
+	.build();
+
+await new CreateMessage({
+	content: "Example response",
+	embeds: [
+		embed,
+		{ title: "Or plain object embeds", description: "Fast and IDE friendly" }
+	],
+	components: [[
+		CreateComponents.button({ customId: "example:click", label: "Click Me" })
+	]],
+}).send(interaction);
+```
+
+`CreateMessage` supports content, embeds, components, files, allowed mentions, and context-aware sending (`reply`, `followUp`, or `send`).
+`CreateComponents` supports button + all select menu builders, and `CreateModal` supports modal creation with Discord's label-component model.
+
+Constructor payload style is fully supported:
+
+```js
+new CreateMessage({
+	content: "Xyz",
+	embeds: [{ title: "Sample" }],
+	components: [[CreateComponents.button({ customId: "demo", label: "Demo" })]],
+	attachments: [],
+	files: [],
+	ephemeral: true,
+});
+```
+
+Modal example:
+
+```js
+const modal = new CreateModal(`feedback:submit:${interaction.user.id}`, "Feedback")
+	.textInput({
+		customId: "topic",
+		label: "Topic",
+		style: TextInputStyle.Short,
+		minLength: 3,
+		maxLength: 80,
+	})
+	.textInput({
+		customId: "details",
+		label: "Details",
+		style: TextInputStyle.Paragraph,
+		minLength: 10,
+		maxLength: 1000,
+	});
+
+await modal.show(interaction);
+```
+
+## Feedback Storage
+- Feedback entries are persisted to `data/feedback.db` in table `feedback_entries`.
+- Stored fields: guildId, channelId, userId, username, topic, details, createdAt.
 
 ## Installation & Setup
 1. Ensure Node.js is installed.
@@ -20,7 +97,9 @@ git clone https://github.com/KevinSidd/Djs14-Bot.git
 ```
 npm i
 ```
-4. To start the bot
+4. Copy `example.env` to `.env` and set `DISCORD_TOKEN`.
+5. Copy `src/example.config.js` to `src/config.js` and update values.
+6. To start the bot
 ```
 node src/index.js
 ```
@@ -28,10 +107,18 @@ node src/index.js
 ```
 npm start
 ```
+- Development mode (uses local guild registration when `commandRegistration.scope` is `auto`):
+```
+npm run dev
+```
 
 ## Configuration
 - Store the bot token in a `.env` file.
-- Configure bot settings in `src/config.js`, including `serverID`.
+- Configure bot settings in `src/config.js`:
+- `dev_guild`: guild ID for dev command registration.
+- `devs`: developer user IDs for dev-only commands.
+- `clientIntents`: keep minimal intents by default.
+- `commandRegistration.scope`: `auto`, `guild`, or `global`.
 
 ## Resources
 - [Discord.js Guide](https://discordjs.guide/#before-you-begin)
