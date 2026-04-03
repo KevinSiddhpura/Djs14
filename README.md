@@ -73,7 +73,7 @@ await modal.show(interaction);
 
 2. Clone the repository:
 ```
-git clone https://github.com/KevinSidd/Djs14-Bot.git
+git clone https://github.com/KevinSidd/Djs14.git
 ```
 3. Navigate to the bot directory and install dependencies:
 ```
