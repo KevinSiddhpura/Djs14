@@ -1,26 +1,14 @@
 # Djs14
-
+# Djs14 - Discord Bot with Addon System
 ## Prerequisites
 - Node.js v20+
-- Discord.js v14
-
 ## Features
 - Efficient command and event handling tailored for Discord.js v14.
-- Modular design for flexible customization.
-- Planned updates for additional commands and utilities.
-- Better database management.
-- Slash, context, and legacy prefix command support.
-- Configurable command registration scope (guild/global/auto).
-- Minimal-intent defaults for easier onboarding and safer permissions.
-- Fluent message and embed builders with JS IntelliSense support.
-- Ready-to-use command suite for general usage and UI interactions.
-- Feedback modal with SQLite persistence.
-
+- **Addon System**: Load, enable, disable, and manage plugins dynamically
+- **Admin Management**: Addon manager command for admin control
 ## Included Commands
 - Slash: `/help`, `/ping`, `/server`, `/ui`, `/feedback`, `/eval` (dev only)
-- Context (user): `User Snapshot`
-- Context (message): `Message Snapshot`
-
+- Admin: `/addon-manager` (manage addons)
 ## Builder API
 Use the built-in builders from `src/lib/builders`:
 
@@ -83,12 +71,6 @@ const modal = new CreateModal(`feedback:submit:${interaction.user.id}`, "Feedbac
 await modal.show(interaction);
 ```
 
-## Feedback Storage
-- Feedback entries are persisted to `data/feedback.db` in table `feedback_entries`.
-- Stored fields: guildId, channelId, userId, username, topic, details, createdAt.
-
-## Installation & Setup
-1. Ensure Node.js is installed.
 2. Clone the repository:
 ```
 git clone https://github.com/KevinSidd/Djs14-Bot.git

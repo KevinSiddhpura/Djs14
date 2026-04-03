@@ -1,7 +1,7 @@
 const { Client, PermissionFlagsBits, ChatInputCommandInteraction, MessageFlags } = require("discord.js");
-const { getCommands } = require("../../lib/command");
+const { getCommands } = require("../../handlers/command");
 const { devs } = require("../../config");
-const logger = require("../../lib/logger");
+const logger = require("../../lib/utils/logger");
 const Utils = require("../../lib/utils");
 const componentHandler = require("../../handlers/interactions/componentHandler");
 const modalHandler = require("../../handlers/interactions/modalHandler");

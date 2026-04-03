@@ -1,7 +1,7 @@
 const db = require("better-sqlite3");
 const path = require("path");
 const fs = require("fs");
-const logger = require("./logger");
+const logger = require("../lib/utils/logger");
 
 class Database {
     constructor(name, options = {}) {

@@ -1,6 +1,6 @@
 const { ApplicationCommandType, Colors } = require("discord.js");
 const { CreateMessage } = require("../../../lib/builders");
-const Command = require("../../../lib/command");
+const Command = require("../../../handlers/command");
 
 new Command({
     name: "Message Snapshot",

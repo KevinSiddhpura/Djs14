@@ -11,7 +11,7 @@ const {
     AutocompleteInteraction,
 } = require("discord.js");
 
-const logger = require("./logger");
+const logger = require("../lib/utils/logger");
 
 const commands = new Collection();
 
@@ -66,15 +66,15 @@ const commandLayout = {
     allowedChannels: [],
 
     /** @param {Client} client @param {ChatInputCommandInteraction} interaction */
-    runSlash: async (client, interaction) => {},
+    runSlash: async (client, interaction) => { },
     /** @param {Client} client @param {AutocompleteInteraction} interaction */
-    runAutocomplete: async (client, interaction) => {},
+    runAutocomplete: async (client, interaction) => { },
     /** @param {Client} client @param {MessageContextMenuCommandInteraction} interaction */
-    runContextMessage: async (client, interaction) => {},
+    runContextMessage: async (client, interaction) => { },
     /** @param {Client} client @param {UserContextMenuCommandInteraction} interaction */
-    runContextUser: async (client, interaction) => {},
+    runContextUser: async (client, interaction) => { },
     /** @param {Client} client @param {Message} message @param {Array} args */
-    runLegacy: async (client, message, args) => {},
+    runLegacy: async (client, message, args) => { },
 };
 
 class Command {
@@ -151,6 +151,7 @@ class Command {
     }
 
     static getCommands = () => commands.toJSON();
+    static getCollection = () => commands;
 }
 
 module.exports = Command;

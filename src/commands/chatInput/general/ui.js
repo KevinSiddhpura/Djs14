@@ -1,5 +1,5 @@
 const { ButtonStyle, Colors } = require("discord.js");
-const Command = require("../../../lib/command");
+const Command = require("../../../handlers/command");
 const componentHandler = require("../../../handlers/interactions/componentHandler");
 const { CreateMessage, CreateComponents } = require("../../../lib/builders");
 

@@ -1,5 +1,5 @@
 const { Colors } = require("discord.js");
-const Command = require("../../../lib/command");
+const Command = require("../../../handlers/command");
 const { CreateMessage } = require("../../../lib/builders");
 
 new Command({

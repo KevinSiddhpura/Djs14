@@ -1,4 +1,13 @@
-const logger = require("../../lib/logger");
+const logger = require("../../lib/utils/logger");
+
+function isIgnorableInteractionError(error) {
+    if (!error) return false;
+
+    if (error.code === 10062 || error.code === 40060) return true;
+
+    const text = `${error.name || ""} ${error.message || ""}`.toLowerCase();
+    return text.includes("unknown interaction") || text.includes("already been acknowledged");
+}
 
 class ModalHandler {
     constructor() {
@@ -43,6 +52,7 @@ class ModalHandler {
             await resolvedHandler(client, interaction);
             return true;
         } catch (error) {
+            if (isIgnorableInteractionError(error)) return true;
             logger.error(error);
             return true;
         }

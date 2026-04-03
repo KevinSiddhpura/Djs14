@@ -1,6 +1,6 @@
 const { ApplicationCommandOptionType, Colors } = require("discord.js");
-const Command = require("../../../lib/command");
-const logger = require("../../../lib/logger");
+const Command = require("../../../handlers/command");
+const logger = require("../../../lib/utils/logger");
 const util = require("util");
 const { CreateEmbed } = require("../../../lib/builders");
 

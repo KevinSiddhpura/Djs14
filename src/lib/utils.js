@@ -2,8 +2,8 @@ const path = require("path");
 const fs = require("fs");
 const axios = require("axios");
 const { REST, Routes } = require("discord.js");
-const logger = require("./logger");
-const { getCommands } = require("./command");
+const logger = require("./utils/logger");
+const { getCommands } = require("../handlers/command");
 const { dev_guild, commandRegistration } = require("../config");
 
 class Utils {
@@ -42,13 +42,29 @@ class Utils {
     static async registerCommands(client) {
         const rest = new REST({ version: "10" }).setToken(process.env.DISCORD_TOKEN);
         const commands = getCommands();
+        const isDevMode = process.argv.includes("--dev");
 
         try {
             logger.debug("Attempting to refresh commands");
 
+            // In dev mode, always target the dev guild and force a full clear + register cycle.
+            if (isDevMode) {
+                if (!dev_guild) {
+                    throw new Error("dev_guild is required when running with --dev.");
+                }
+
+                const devRoute = Routes.applicationGuildCommands(client.user.id, dev_guild);
+
+                await rest.put(devRoute, { body: [] });
+                logger.debug(`Cleared dev guild commands for guild ${dev_guild}`);
+
+                const devData = await rest.put(devRoute, { body: commands });
+                logger.info(`Successfully reloaded ${devData.length} dev guild commands`);
+                return true;
+            }
+
             const scopeSetting = commandRegistration?.scope || "auto";
-            const useGuildScope =
-                scopeSetting === "guild" || (scopeSetting === "auto" && process.argv.includes("--dev"));
+            const useGuildScope = scopeSetting === "guild";
 
             if (useGuildScope && !dev_guild) {
                 throw new Error("dev_guild is required when command registration scope is guild.");
@@ -58,9 +74,8 @@ class Utils {
                 ? Routes.applicationGuildCommands(client.user.id, dev_guild)
                 : Routes.applicationCommands(client.user.id);
 
-            const data = await rest.put(route, {
-                body: process.argv.includes("--reset-cmds") ? [] : commands,
-            });
+            const body = process.argv.includes("--reset-cmds") ? [] : commands;
+            const data = await rest.put(route, { body });
             logger.info(`Successfully reloaded ${data.length} commands`);
             return true;
         } catch (error) {

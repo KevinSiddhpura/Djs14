@@ -1,7 +1,7 @@
 const { Client, Message, PermissionFlagsBits } = require("discord.js");
-const { getCommands } = require("../../lib/command");
+const { getCommands } = require("../../handlers/command");
 const { prefixes, devs } = require("../../config");
-const logger = require("../../lib/logger");
+const logger = require("../../lib/utils/logger");
 const Utils = require("../../lib/utils");
 
 /**

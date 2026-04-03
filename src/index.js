@@ -1,10 +1,10 @@
 const { config } = require("dotenv");
 config();
 
-const { initialize } = require("./lib/database");
+const { initialize } = require("./handlers/database");
 const { Client, GatewayIntentBits } = require("discord.js");
 const runEvents = require("./handlers/runEvents");
-const logger = require("./lib/logger");
+const logger = require("./lib/utils/logger");
 const Utils = require("./lib/utils");
 const botConfig = require("./config");
 

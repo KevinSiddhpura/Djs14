@@ -1,6 +1,6 @@
 const { Message } = require("discord.js");
 const { paginationButtons } = require("../config");
-const logger = require("../lib/logger");
+const logger = require("../lib/utils/logger");
 const { CreateMessage, CreateComponents } = require("../lib/builders");
 
 function normalizePage(page) {

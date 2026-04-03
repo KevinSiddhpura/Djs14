@@ -1,6 +1,6 @@
 const { ApplicationCommandOptionType, ApplicationCommandType } = require("discord.js");
-const Command = require("../../../lib/command");
-const { getCommands } = require("../../../lib/command");
+const Command = require("../../../handlers/command");
+const { getCommands } = require("../../../handlers/command");
 const Pagination = require("../../../handlers/pagination");
 const { splitArray } = require("../../../lib/utils");
 const { CreateMessage } = require("../../../lib/builders");
@@ -50,10 +50,11 @@ new Command({
             return;
         }
 
-        const initialMessage = await new CreateMessage({
+        await new CreateMessage({
             content: "Loading help pages...",
-            fetchReply: true,
         }).send(interaction);
+
+        const initialMessage = await interaction.fetchReply();
 
         const chunks = splitArray(visible, 6);
         const pages = chunks.map((chunk, index) => ({

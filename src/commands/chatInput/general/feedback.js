@@ -1,9 +1,9 @@
 const { Colors, TextInputStyle } = require("discord.js");
-const Command = require("../../../lib/command");
+const Command = require("../../../handlers/command");
 const modalHandler = require("../../../handlers/interactions/modalHandler");
 const { CreateMessage, CreateModal } = require("../../../lib/builders");
-const Database = require("../../../lib/database");
-const logger = require("../../../lib/logger");
+const Database = require("../../../handlers/database");
+const logger = require("../../../lib/utils/logger");
 
 const feedbackDb = new Database("feedback.db");
 feedbackDb.createTable(
