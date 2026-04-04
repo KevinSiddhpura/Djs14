@@ -1,5 +1,5 @@
 # Djs14
-# Djs14 - Discord Bot with Addon System
+
 ## Prerequisites
 - Node.js v20+
 ## Features
